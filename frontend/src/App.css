@@ -142,7 +142,7 @@ body, html, #root {
 
 .back-btn {
   background-color: #6b7280;
-  font-size: 17px!important;
+  font-size: 14px!important;
 }
 
 .back-btn:hover {
@@ -205,9 +205,13 @@ body, html, #root {
 }
 
 .message-bot {
-  background-color: #e5e7eb;
+  background-color: #ffff!important;
   color: #111827;
   align-self: flex-start;
+}
+
+.message-bot>span{
+    color: #111827;
 }
 
 /* Chat messages container */
@@ -287,7 +291,7 @@ body, html, #root {
   position: absolute;
   top: 15px;
   right: 15px;
-  padding: 8px 15px;
+  padding: 8px 16px;
   border-radius: 10px;
   background-color: #ff4d4d;
   color: white;
@@ -295,6 +299,7 @@ body, html, #root {
   cursor: pointer;
   font-weight: 600;
   transition: 0.3s ease;
+  font-size: 12px;
 }
 
 .logout-btn-bot:hover {
@@ -366,8 +371,3 @@ body, html, #root {
   align-self: flex-start;
 }
 
-.message-bot {
-  background-color: #0a84ff;
-  color: white;
-  align-self: flex-end;
-}
