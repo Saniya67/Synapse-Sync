@@ -84,6 +84,46 @@ async def ask_question(
     return parsed
 
 
+GITHUB_OWNER = os.getenv("GITHUB_OWNER", "octocat")
+GITHUB_REPO = os.getenv("GITHUB_REPO", "Hello-World")
+
+import re
+from BackendServices.utils.usecases import (
+    prs_merged_without_approval,
+    prs_reviewed_by_user,
+    prs_waiting_review,
+    prs_merged_last_days,
+)
+
+async def handle_query(user_input: str, owner: str, repo: str):
+    q = user_input.lower()
+
+    if "merged without approval" in q:
+        return await prs_merged_without_approval(owner, repo)
+
+    elif match := re.search(r"reviewed by (\w+)", q):
+        reviewer = match.group(1)
+        return await prs_reviewed_by_user(owner, repo, reviewer)
+
+    elif "waiting for review" in q or "more than 24 hours" in q:
+        return await prs_waiting_review(owner, repo, hours=24)
+
+    elif "merged" in q and "last 7 days" in q:
+        return await prs_merged_last_days(owner, repo, days=7)
+
+    else:
+        return {"message": "Sorry, I don't understand this query yet."}
+
+
+@app.get("/chat")
+async def ask(question: str):
+    """
+    Example:
+    /ask?question=How+many+PRs+were+merged+without+approval&owner=octocat&repo=Hello-World
+    """
+    result = await handle_query(question, GITHUB_OWNER, GITHUB_REPO)
+    return result
+
 if __name__ == "__main__":
     try:
         print(('Starting service @ port ' + str(80)))
