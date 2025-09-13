@@ -20,8 +20,8 @@ function Login({ onLogin }) {
       <h2>Evidence-on-Demand Bot Login</h2>
       <Form onSubmit={handleSubmit} className="login-form">
         <Form.Control
-          type="text"
-          placeholder="Username"
+          type="email"
+          placeholder="username@gmail.com"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="mb-2"

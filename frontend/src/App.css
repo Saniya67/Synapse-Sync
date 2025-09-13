@@ -74,7 +74,7 @@ body, html, #root {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #0a84ff, #4a90e2);
+  background: linear-gradient(135deg, #0a84ff, #daebff);
   color: white;
 }
 
@@ -99,7 +99,7 @@ body, html, #root {
 
 .login-btn {
   background-color: #fff;
-  color: #0a84ff;
+  color: #01101e;
   font-weight: bold;
   padding: 12px 0;
   border-radius: 10px;
