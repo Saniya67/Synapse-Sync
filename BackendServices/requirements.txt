@@ -8,3 +8,5 @@ openai
 dotenv
 python-multipart
 pandas
+faiss-cpu
+tiktoken
