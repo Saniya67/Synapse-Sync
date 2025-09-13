@@ -142,6 +142,7 @@ body, html, #root {
 
 .back-btn {
   background-color: #6b7280;
+  font-size: 17px!important;
 }
 
 .back-btn:hover {
@@ -151,6 +152,7 @@ body, html, #root {
 .new-chat-btn {
   background-color: #0a84ff;
   color: white;
+  font-size: 15px!important;
 }
 
 .new-chat-btn:hover {
