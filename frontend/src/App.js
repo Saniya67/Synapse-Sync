@@ -3,6 +3,7 @@ import EvidenceBot from './components/EvidenceBot';
 import Sidebar from './components/Sidebar';
 import Login from './components/Login';
 import './App.css';
+import EvidenceBotTwo from './components/EvidenceBotTwo';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -11,6 +12,7 @@ function App() {
   const [requests, setRequests] = useState([{ name: 'Request 1', messages: [] }]);
   const [selectedRequest, setSelectedRequest] = useState(0);
   const [showLanding, setShowLanding] = useState(true);
+  const [useAgentAI, setUseAgentAI] = useState(false); // Track which bot to show
 
   useEffect(() => {
     const savedUser = localStorage.getItem('eod-user');
@@ -27,25 +29,30 @@ function App() {
   }, []);
 
   const selectRequest = (idx) => setSelectedRequest(idx);
+
   const newRequest = () => {
     const newReq = { name: `Request ${requests.length + 1}`, messages: [] };
     setRequests([...requests, newReq]);
     setSelectedRequest(requests.length);
   };
+
   const updateRequest = (updatedRequest) => {
     const updated = [...requests];
     updated[selectedRequest] = updatedRequest;
     setRequests(updated);
   };
+
   const deleteRequest = (idx) => {
     const updated = requests.filter((_, i) => i !== idx);
     setRequests(updated);
     if (selectedRequest === idx) setSelectedRequest(0);
     else if (selectedRequest > idx) setSelectedRequest(selectedRequest - 1);
   };
+
   const goBack = () => {
     setShowLanding(true);
     localStorage.setItem('eod-showLanding', 'true');
+    setUseAgentAI(false); // Reset to default EvidenceBot
   };
 
   const handleLogin = (username) => {
@@ -61,6 +68,7 @@ function App() {
     localStorage.removeItem('eod-showLanding');
     localStorage.removeItem('eod-tourShown');
     setUser(null);
+    setUseAgentAI(false);
   };
 
   const tourSteps = [
@@ -87,12 +95,20 @@ function App() {
         <h1>AI-Powered Evidence-on-Demand Bot</h1>
         <p>Welcome, {user}!</p>
         <div className="landing-buttons">
-          <button className="landing-btn" onClick={() => alert('Agent AI coming soon')}>
+          <button
+            className="landing-btn"
+            onClick={() => {
+              setUseAgentAI(true);
+              setShowLanding(false);
+              localStorage.setItem('eod-showLanding', 'false');
+            }}
+          >
             Use Agent AI
           </button>
           <button
             className="landing-btn"
             onClick={() => {
+              setUseAgentAI(false);
               setShowLanding(false);
               localStorage.setItem('eod-showLanding', 'false');
             }}
@@ -149,7 +165,13 @@ function App() {
         deleteChat={deleteRequest}
         goBack={goBack}
       />
-      <EvidenceBot chatData={requests[selectedRequest]} updateChat={updateRequest} />
+
+      {useAgentAI ? (
+        <EvidenceBotTwo chatData={requests[selectedRequest]} updateChat={updateRequest} />
+      ) : (
+        <EvidenceBot chatData={requests[selectedRequest]} updateChat={updateRequest} />
+      )}
+
       <button className="logout-btn-bot" onClick={handleLogout}>
         Logout
       </button>
