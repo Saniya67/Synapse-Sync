@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { Form, Button, Table } from 'react-bootstrap';
+import { Form, Button, Table, Card } from 'react-bootstrap';
 import axios from 'axios';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable'; // Correct import for modern jspdf
 
 function EvidenceBot({ chatData, updateChat }) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Send user question to API
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -33,10 +37,10 @@ function EvidenceBot({ chatData, updateChat }) {
       let botMessage;
 
       if ('definition' in firstRow) {
-        // Case 3: show definition as text
+        // Show definition text
         botMessage = { type: 'answer', text: firstRow.definition };
       } else if (data.result_table && data.result_table.length > 0) {
-        // Case 1 & 2: show as table
+        // Show table
         botMessage = { type: 'table', text: data.result_table, query: data.query };
       } else {
         botMessage = { type: 'answer', text: 'No results found for this query.' };
@@ -55,6 +59,28 @@ function EvidenceBot({ chatData, updateChat }) {
     }
   };
 
+  // Export table to Excel
+  const exportToExcel = (tableData, filename = 'report.xlsx') => {
+    const ws = XLSX.utils.json_to_sheet(tableData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, filename);
+  };
+
+  // Export table to PDF
+  const exportToPDF = (tableData, title = 'Report') => {
+    const doc = new jsPDF();
+    doc.text(title, 14, 20);
+
+    autoTable(doc, {
+      head: [Object.keys(tableData[0])],
+      body: tableData.map((row) => Object.values(row)),
+      startY: 30,
+    });
+
+    doc.save(`${title}.pdf`);
+  };
+
   return (
     <div className="chat-area">
       <div className="list-group-chat">
@@ -65,27 +91,48 @@ function EvidenceBot({ chatData, updateChat }) {
           >
             {msg.type === 'question' && <span>{msg.text}</span>}
             {msg.type === 'answer' && <span>{msg.text}</span>}
+
             {msg.type === 'table' && (
-              <div>
-                <Table striped bordered hover size="sm" responsive>
-                  <thead>
-                    <tr>
-                      {Object.keys(msg.text[0]).map((key) => (
-                        <th key={key}>{key}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {msg.text.map((row, i) => (
-                      <tr key={i}>
-                        {Object.keys(row).map((col) => (
-                          <td key={col}>{row[col]}</td>
+              <Card style={{ marginBottom: '15px' }}>
+                <Card.Body>
+                  <strong>{msg.query}</strong>
+                  <div className="table-actions" style={{ margin: '5px 0' }}>
+                    <Button
+                      size="sm"
+                      variant="success"
+                      onClick={() => exportToExcel(msg.text)}
+                      style={{ marginRight: '5px' }}
+                    >
+                      Download Excel
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="danger"
+                      onClick={() => exportToPDF(msg.text, msg.query)}
+                    >
+                      Download PDF
+                    </Button>
+                  </div>
+                  <Table striped bordered hover size="sm" responsive>
+                    <thead>
+                      <tr>
+                        {Object.keys(msg.text[0]).map((key) => (
+                          <th key={key}>{key}</th>
                         ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {msg.text.map((row, i) => (
+                        <tr key={i}>
+                          {Object.keys(row).map((col) => (
+                            <td key={col}>{row[col]}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </Card.Body>
+              </Card>
             )}
           </div>
         ))}
