@@ -11,6 +11,7 @@ function EvidenceBot({ chatData, updateChat }) {
   const [loading, setLoading] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editText, setEditText] = useState('');
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const handleSend = async (question = null, index = null) => {
     const questionText = question || input;
@@ -46,7 +47,7 @@ function EvidenceBot({ chatData, updateChat }) {
       formData.append('question', questionText);
 
       const response = await axios.post(
-        'https://862637ef1af5.ngrok-free.app/ask',
+        `${backendUrl}/ask`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -55,8 +56,8 @@ function EvidenceBot({ chatData, updateChat }) {
       const firstRow = data.result_table?.[0] || {};
 
       let botMessage;
-      if ('definition' in firstRow || 'Definition' in firstRow) {
-        botMessage = { type: 'answer', text: firstRow.definition || firstRow.Definition };
+      if ('definition' in firstRow || 'Definition' in firstRow || 'RAG' in firstRow || 'Rag' in firstRow) {
+        botMessage = { type: 'answer', text: firstRow.definition || firstRow.Definition || firstRow.RAG || firstRow.Rag };
       } else if (data.result_table && data.result_table.length > 0) {
         botMessage = { type: 'table', text: data.result_table, query: data.query };
       } else {
